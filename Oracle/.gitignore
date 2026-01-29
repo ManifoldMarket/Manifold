@@ -51,6 +51,7 @@ build/
 markets_export.json
 data/
 logs/
+oracle.db
 
 # Don't ignore example files
 !.env.example
