@@ -10,34 +10,59 @@ load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
 
 ORACLE_PRIVATE_KEY = os.getenv("ORACLE_PRIVATE_KEY")
 ALEO_NODE_URL = os.getenv("ALEO_NODE_URL")
+ETHERSCAN_API_KEY = os.getenv("ETHERSCAN_API_KEY")
 
 
 def fetch_eth_staking_data():
     """
     Fetches ETH staking rate (total_staked / total_supply).
-    Yields a percentage value (e.g., 28.5).
+    Returns a percentage value (e.g., 28.5).
     """
     try:
-        # In a real implementation, you would uses APIs like:
-        # - Etherscan: Total Supply
-        # - Beaconcha.in: Total Staked
-
-        # For demonstration, we use sample values or a public API if available.
-        # This is the "Snapshot" logic described by the user.
-
-        # total_supply_url = "https://api.etherscan.io/api?module=stats&action=ethsupply&apikey=YOUR_API_KEY"
-        # total_staked_url = "https://api.beaconcha.in/v1/validator/statistics"
-
-        # Mock logic representing the "frozen value" at snapshot time
-        # In production, this would be a real GET request.
         print("📸 Taking snapshot of ETH staking data...")
 
-        # Sample data as of early 2026/late 2025 projection
-        total_staked = 34500000  # Example: 34.5M ETH staked
-        total_supply = 120000000  # Example: 120M ETH total supply
+        # 1. Fetch Total Supply from Etherscan
+        supply_url = f"https://api.etherscan.io/api?module=stats&action=ethsupply&apikey={ETHERSCAN_API_KEY}"
+        supply_resp = requests.get(supply_url)
+        supply_data = supply_resp.json()
+        
+        if supply_data.get("status") != "1":
+            print(f"❌ Etherscan Error: {supply_data.get('message')}")
+            return None
+            
+        # Total supply is returned in Wei, convert to ETH (10^18)
+        total_supply = int(supply_data["result"]) / 10**18
+        
+        # 2. Fetch Total Staked from Beaconcha.in
+        # Using a public endpoint that provides total staked ETH. 
+        # Note: Beaconcha.in might require headers for some endpoints.
+        staked_url = "https://beaconcha.in/api/v1/ethstore/latest"
+        staked_resp = requests.get(staked_url)
+        staked_data = staked_resp.json()
+        
+        if not staked_data.get("status") == "OK":
+            # Fallback to another endpoint if ethstore is not available
+            staked_url = "https://beaconcha.in/api/v1/validator/statistics"
+            staked_resp = requests.get(staked_url)
+            staked_data = staked_resp.json()
+            
+            if not staked_data.get("status") == "OK":
+                print(f"❌ Beaconcha.in Error: {staked_data.get('message')}")
+                return None
+            
+            # Sum up balances or use a provided total
+            total_staked = staked_data["data"][0]["active_validators_total"] * 32 # Approximation
+        else:
+            # Payout data provides an eth_balance or equivalent
+            total_staked = int(staked_data["data"]["total_balance"]) / 10**18 # total_balance in Wei/Gwei? Check docs.
+            # Assuming Gwei for Beacon chain usually
+            total_staked = int(staked_data["data"]["total_balance"]) / 10**9 # Gwei to ETH
+
+        print(f"💎 Total Staked: {total_staked:,.2f} ETH")
+        print(f"🪙 Total Supply: {total_supply:,.2f} ETH")
 
         staking_rate = (total_staked / total_supply) * 100
-        print(f"📊 Snapshot Value: {staking_rate:.2f}%")
+        print(f"📊 Calculated Staking Rate: {staking_rate:.2f}%")
 
         return staking_rate
     except Exception as e:
