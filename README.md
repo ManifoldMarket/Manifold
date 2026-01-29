@@ -1,13 +1,9 @@
 # BlockSeer
 
-# Outcome Frontend - Aleo Prediction Markets
-
-A clean, modular prediction market frontend for blockchain events on the Aleo network.
-
 ## Project Structure
 
 ```
-outcome-frontend/
+Frontend/
 ├── app/                          # Next.js App Router
 │   ├── globals.css               # Global styles & Tailwind
 │   ├── layout.tsx                # Root layout with providers
