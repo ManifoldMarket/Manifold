@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { Box, ChevronDown, LogOut, Copy, Check, Search, X } from 'lucide-react';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { useWallet } from '@demox-labs/aleo-wallet-adapter-react';
+import { DecryptPermission, WalletAdapterNetwork } from '@demox-labs/aleo-wallet-adapter-base';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
@@ -19,6 +20,7 @@ interface NavbarProps {
 }
 
 function truncateAddress(address: string) {
+  if (address.length <= 14) return address;
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
 
@@ -30,13 +32,22 @@ export function Navbar({
   onSearchChange,
   stats = { totalValue: 0, cash: 0 }
 }: NavbarProps) {
-  const [showConnectModal, setShowConnectModal] = useState(false);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const { address, isConnected } = useAccount();
-  const { connect, connectors, isPending } = useConnect();
-  const { disconnect } = useDisconnect();
+  const { publicKey, connected, connecting, connect, disconnect, select, wallets } = useWallet();
+  const address = publicKey || '';
+
+  const handleConnect = async () => {
+    if (wallets.length > 0) {
+      select(wallets[0].adapter.name);
+      try {
+        await connect(DecryptPermission.UponRequest, WalletAdapterNetwork.TestnetBeta);
+      } catch (error) {
+        console.error('Failed to connect wallet:', error);
+      }
+    }
+  };
 
   const handleCopyAddress = () => {
     if (address) {
@@ -115,7 +126,7 @@ export function Navbar({
 
             {/* Right: Stats & Wallet */}
             <div className="flex items-center gap-2 sm:gap-4">
-              {isConnected && address ? (
+              {connected && address ? (
                 <>
                   {/* Portfolio & Cash Stats */}
                   <div className="hidden lg:flex items-center gap-6 mr-2">
@@ -152,8 +163,8 @@ export function Navbar({
                         />
                         <div className="absolute right-0 mt-2 w-56 bg-zinc-900 border border-zinc-800 rounded-xl shadow-xl z-50 overflow-hidden">
                           <div className="px-4 py-3 border-b border-zinc-800">
-                            <p className="text-xs text-zinc-500 mb-1">Connected</p>
-                            <p className="text-sm font-mono text-white">{truncateAddress(address)}</p>
+                            <p className="text-xs text-zinc-500 mb-1">Connected (Aleo)</p>
+                            <p className="text-sm font-mono text-white break-all">{truncateAddress(address)}</p>
                           </div>
                           <div className="p-2">
                             <button
@@ -187,11 +198,11 @@ export function Navbar({
                 <Button
                   variant="outline"
                   className="gap-2 px-4 py-2"
-                  onClick={() => setShowConnectModal(true)}
-                  disabled={isPending}
+                  onClick={handleConnect}
+                  disabled={connecting}
                 >
                   <span className="w-2 h-2 rounded-full bg-zinc-400" />
-                  {isPending ? 'Connecting...' : 'Connect Wallet'}
+                  {connecting ? 'Connecting...' : 'Connect Leo Wallet'}
                 </Button>
               )}
             </div>
@@ -222,60 +233,6 @@ export function Navbar({
           )}
         </div>
       </nav>
-
-      {/* Connect Wallet Modal */}
-      {showConnectModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setShowConnectModal(false)}
-          />
-          <div className="relative bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden">
-            <div className="px-6 py-5 border-b border-zinc-800">
-              <h2 className="text-lg font-semibold text-white">Connect Wallet</h2>
-              <p className="text-sm text-zinc-400 mt-1">Choose your preferred wallet</p>
-            </div>
-            <div className="p-4 space-y-2">
-              {connectors.map((connector) => (
-                <button
-                  key={connector.uid}
-                  onClick={() => {
-                    connect({ connector });
-                    setShowConnectModal(false);
-                  }}
-                  disabled={isPending}
-                  className="w-full flex items-center gap-4 px-4 py-3 bg-zinc-800/50 hover:bg-zinc-800 border border-zinc-700/50 rounded-xl transition-colors disabled:opacity-50"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-zinc-700 flex items-center justify-center">
-                    {connector.name === 'MetaMask' ? (
-                      <span className="text-xl">🦊</span>
-                    ) : connector.name === 'WalletConnect' ? (
-                      <span className="text-xl">🔗</span>
-                    ) : (
-                      <span className="text-xl">💳</span>
-                    )}
-                  </div>
-                  <div className="text-left">
-                    <p className="text-sm font-medium text-white">{connector.name}</p>
-                    <p className="text-xs text-zinc-500">
-                      {connector.name === 'MetaMask'
-                        ? 'Connect using MetaMask'
-                        : connector.name === 'WalletConnect'
-                        ? 'Scan with mobile wallet'
-                        : 'Browser extension'}
-                    </p>
-                  </div>
-                </button>
-              ))}
-            </div>
-            <div className="px-6 py-4 border-t border-zinc-800 bg-zinc-900/50">
-              <p className="text-xs text-zinc-500 text-center">
-                By connecting, you agree to the Terms of Service
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }
