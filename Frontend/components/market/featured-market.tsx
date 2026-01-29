@@ -1,6 +1,6 @@
 'use client';
 
-import { Flame } from 'lucide-react';
+import { Flame, DollarSign } from 'lucide-react';
 import { Market } from '@/types';
 
 interface FeaturedMarketProps {
@@ -25,7 +25,14 @@ export function FeaturedMarket({ market, onClick }: FeaturedMarketProps) {
           <p className="text-zinc-400">{market.description}</p>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-6">
+          <div className="text-center">
+            <div className="flex items-center gap-1 text-lg font-bold text-emerald-400">
+              <DollarSign className="w-4 h-4" />
+              {market.volume}
+            </div>
+            <div className="text-xs text-zinc-500">Volume</div>
+          </div>
           <div className="text-center">
             <div className="text-3xl font-bold text-blue-400">{market.yesPrice}%</div>
             <div className="text-xs text-zinc-500">Yes</div>

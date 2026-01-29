@@ -2,7 +2,7 @@
 
 import { ArrowLeft, TrendingUp, TrendingDown, Clock, Users, BarChart3 } from 'lucide-react';
 import { Market, Activity } from '@/types';
-import { Badge, DetailedChart } from '@/components/ui';
+import { Badge } from '@/components/ui';
 import { TradingPanel } from './trading-panel';
 import { ActivityFeed } from './activity-feed';
 import { formatNumber } from '@/lib/utils';
@@ -67,9 +67,6 @@ export function EventDetail({ market, activities, onBack }: EventDetailProps) {
             </div>
           </div>
 
-          {/* Price Chart */}
-          <PriceChart data={market.history} />
-
           {/* About Section */}
           <AboutSection description={market.description} resolution={market.resolution} />
 
@@ -81,33 +78,6 @@ export function EventDetail({ market, activities, onBack }: EventDetailProps) {
         <div className="lg:col-span-1">
           <TradingPanel market={market} />
         </div>
-      </div>
-    </div>
-  );
-}
-
-function PriceChart({ data }: { data: number[] }) {
-  const periods = ['1D', '1W', '1M', 'All'];
-
-  return (
-    <div className="bg-zinc-900/80 border border-zinc-800/60 rounded-2xl p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-white">Price History</h2>
-        <div className="flex gap-2">
-          {periods.map((period) => (
-            <button
-              key={period}
-              className="px-3 py-1.5 text-xs font-medium rounded-lg bg-zinc-800/60 text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors"
-            >
-              {period}
-            </button>
-          ))}
-        </div>
-      </div>
-      <DetailedChart data={data} />
-      <div className="flex justify-between text-xs text-zinc-500 mt-4 px-1">
-        <span>10 periods ago</span>
-        <span>Now</span>
       </div>
     </div>
   );

@@ -58,7 +58,7 @@ export function Navbar({
                   <Box className="w-4 h-4 text-white" />
                 </div>
                 <span className="text-lg font-bold tracking-tight text-white hidden sm:block">
-                  Aleo<span className="text-blue-400">Predict</span>
+                  Block<span className="text-blue-400">Seer</span>
                 </span>
               </div>
 

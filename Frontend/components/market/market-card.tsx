@@ -1,9 +1,9 @@
 'use client';
 
-import { TrendingUp, TrendingDown, Clock, Users } from 'lucide-react';
+import { TrendingUp, TrendingDown, Clock, DollarSign } from 'lucide-react';
 import { Market } from '@/types';
-import { Badge, MiniChart } from '@/components/ui';
-import { cn, formatNumber } from '@/lib/utils';
+import { Badge } from '@/components/ui';
+import { cn } from '@/lib/utils';
 
 interface MarketCardProps {
   market: Market;
@@ -35,15 +35,19 @@ export function MarketCard({ market, onClick }: MarketCardProps) {
       </h3>
       <p className="text-zinc-500 text-sm mb-5">{market.subtitle}</p>
 
-      {/* Chart & Change */}
+      {/* Volume */}
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
-          <MiniChart data={market.history} positive={isPositive} />
-          <span className={cn('text-xs font-medium flex items-center gap-0.5', isPositive ? 'text-emerald-400' : 'text-red-400')}>
-            {isPositive ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
-            {isPositive ? '+' : ''}{market.change}%
-          </span>
+          <div className="flex items-center gap-1.5 bg-zinc-800/60 px-2.5 py-1 rounded-lg">
+            <DollarSign className="w-3.5 h-3.5 text-zinc-400" />
+            <span className="text-sm font-semibold text-white">{market.volume}</span>
+            <span className="text-xs text-zinc-500">Vol</span>
+          </div>
         </div>
+        <span className={cn('text-xs font-medium flex items-center gap-0.5', isPositive ? 'text-emerald-400' : 'text-red-400')}>
+          {isPositive ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+          {isPositive ? '+' : ''}{market.change}%
+        </span>
       </div>
 
       {/* Outcome Buttons */}
@@ -64,11 +68,6 @@ export function MarketCard({ market, onClick }: MarketCardProps) {
           <Clock className="w-3.5 h-3.5" />
           {market.endDate}
         </span>
-        <span className="flex items-center gap-1.5">
-          <Users className="w-3.5 h-3.5" />
-          {formatNumber(market.traders)}
-        </span>
-        <span className="font-medium text-zinc-400">{market.volume}</span>
       </div>
     </div>
   );
