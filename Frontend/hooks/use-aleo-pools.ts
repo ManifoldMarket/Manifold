@@ -102,7 +102,7 @@ function aleoPoolToMarket(pool: AleoPool, index: number): Market {
     noPrice,
     change: 0,
     status,
-    description: `A prediction pool on BlockSeer. Total staked: ${volumeInAleo.toFixed(2)} ALEO.`,
+    description: `A prediction pool on Manifold. Total staked: ${volumeInAleo.toFixed(2)} ALEO.`,
     resolution: 'This market resolves based on the pool outcome determined by the admin.',
     history: [yesPrice, yesPrice, yesPrice, yesPrice, yesPrice, yesPrice, yesPrice, yesPrice, yesPrice, yesPrice],
   };
