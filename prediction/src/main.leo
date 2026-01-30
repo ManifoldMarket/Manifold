@@ -1,5 +1,5 @@
 // The 'prediction' program.
-program predictionprivacyhack.aleo {
+program predictionprivacyhackvii.aleo {
     // A simple token structure to represent prediction pools
     struct Pool {
      id: field,
