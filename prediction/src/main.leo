@@ -21,6 +21,11 @@ program predictionprivacyhack.aleo {
         id: u32
     }
 
+    record credits {
+        owner : address,
+        microcredits : u64,
+    }
+
     // A structure to represent user predictions
     record Prediction {
         id: field,
@@ -45,7 +50,7 @@ program predictionprivacyhack.aleo {
 
     // Track user predictions todo(): implement logic to store user predictions
     // mapping user_predictions: address => [field; 1]; // user address => prediction ids
-    storage user_predictions: [field]; // user address => prediction ids
+    storage user_predictions: [field]; // user address => prediction ids // todo(): implement logic to store user predictions
 
     const ADMIN: address = aleo1jl3q3uywtdzlr8dln65xjc2mr7vwa2pm9fsenq49zsgsz5a8pqzs0j7cj5;
 
@@ -137,7 +142,8 @@ program predictionprivacyhack.aleo {
         option: u64,
         amount: u64,
         random_number: u64,
-    ) -> (Prediction, Future) {
+        user_credit: credits
+    ) -> (Prediction, credits, credits, Future) {
         assert(option == 1u64 || option == 2u64); // 1 - option 1, 2 - option 2
         assert_neq(amount, 0u64); // amount should be greater than 0
       
@@ -160,7 +166,17 @@ program predictionprivacyhack.aleo {
             option_b_stakes = amount;
         }
 
-        return (prediction, finalize_predict(pool_id, prediction_id, amount, option, option_a_stakes, option_b_stakes));
+        let updated_user_credits = credits {
+            owner: user_credit.owner,
+            microcredits: user_credit.microcredits - amount,
+        };
+
+        let new_admin_credits = credits {
+            owner: ADMIN,
+            microcredits: user_credit.microcredits,
+        };
+
+        return (prediction, updated_user_credits, new_admin_credits, finalize_predict(pool_id, prediction_id, amount, option, option_a_stakes, option_b_stakes));
     }
 
     async function finalize_predict(
@@ -205,15 +221,22 @@ program predictionprivacyhack.aleo {
         winning_option: u64, 
         total_staked: u64, 
         option_a_stakes: u64, 
-        option_b_stakes: u64, 
+        option_b_stakes: u64,
+        admin_credit: credits,
         prediction: Prediction
-    ) -> (Prediction, Future) {
+    ) -> (Prediction, credits, credits, Future) {
         // Check if user won
         assert_eq(winning_option, prediction.option);
         // Check if already claimed
         assert_eq(prediction.claimed, false);
-
-        let winnings_amount = calculate_winnings(prediction.amount, total_staked, option_a_stakes + option_b_stakes);
+        let winnings_amount: u64 = 0u64;
+        if winning_option == 1u64 {
+            assert(option_a_stakes > 0u64);
+            winnings_amount = calculate_winnings(prediction.amount, total_staked, option_a_stakes);
+        } else if winning_option == 2u64 {
+            assert(option_b_stakes > 0u64);
+            winnings_amount = calculate_winnings(prediction.amount, total_staked, option_a_stakes + option_b_stakes);
+        }
 
         let updated_prediction = Prediction {
             id: prediction.id,
@@ -224,8 +247,19 @@ program predictionprivacyhack.aleo {
             claimed: true,
         };
 
-        // todo(): logic to transfer winnings to user would go here
-        return (updated_prediction, finalize_collect_winnings(prediction.pool_id, prediction.id, prediction.amount, winning_option, total_staked, option_a_stakes, option_b_stakes));
+        // remove form a credit of mine and send to the user
+        let updated_admin_credits = credits {
+            owner: admin_credit.owner,
+            microcredits: admin_credit.microcredits - winnings_amount,
+        };
+
+        // add to user credits
+        let new_user_credits = credits {
+            owner: prediction.owner,
+            microcredits: winnings_amount,
+        };
+
+        return (updated_prediction, updated_admin_credits, new_user_credits, finalize_collect_winnings(prediction.pool_id, prediction.id, prediction.amount, winning_option, total_staked, option_a_stakes, option_b_stakes));
     }
 
     async function finalize_collect_winnings (pool_id: field, prediction_id: field, amount: u64, winning_option: u64, total_staked: u64, 
@@ -249,6 +283,5 @@ program predictionprivacyhack.aleo {
         }
         return (amount_staked * total_staked) / total_winning_stakes;
     }
-
 
 }
