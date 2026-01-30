@@ -312,6 +312,13 @@ winnings = (amount_staked * total_staked) / total_winning_stakes
 
 ---
 
+## Recent Changes (v3.0)
+
+### New features added:
+1. **Add aleo credits collections and distributions**
+  - Whne someone places a prediction the credits is being collected and is given to the admin
+  - When someone claims winnings the admins credits is being reduced and a new credit is created for the user with this new amount 
+
 ## Integration Notes for Frontend
 
 ### Required User Inputs:
