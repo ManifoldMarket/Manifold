@@ -70,6 +70,16 @@ npm run cli -- create-market "BTC-Rank-1" 1 1738320000 --metric btc_dominance --
 npm run cli -- create-market "Gas-Spike" 50 1738320000 --metric eth_gas_price --description "Will average gwei exceed 50 today?" --option-a "SPIKE" --option-b "STABLE"
 ```
 
+**Example 5: Market Sentiment (Extreme Greed)**
+```bash
+npm run cli -- create-market "Sentiment-Greed" 80 1738320000 --metric fear_greed --description "Will the Fear & Greed Index hit 80 (Extreme Greed)?" --option-a "GREEDY" --option-b "FEARFUL"
+```
+
+**Example 6: Stablecoin Stability Check**
+```bash
+npm run cli -- create-market "USDT-Depeg" 0.98 1738320000 --metric stablecoin_peg --description "Will USDT drop below $0.98?" --option-a "STABLE" --option-b "DEPEGGED"
+```
+
 
 ## Project Structure
 - `src/api.ts`: Express server implementation.

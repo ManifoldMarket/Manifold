@@ -50,7 +50,7 @@ program
     .argument("<title>", "Title of the market")
     .argument("<threshold>", "Threshold value")
     .argument("<snapshot_time>", "Snapshot timestamp (Unix seconds)")
-    .option("-m, --metric <type>", "Metric type (eth_staking_rate, eth_price, btc_dominance, eth_gas_price)", "eth_staking_rate")
+    .option("-m, --metric <type>", "Metric type (eth_staking_rate, eth_price, btc_dominance, eth_gas_price, fear_greed, stablecoin_peg)", "eth_staking_rate")
     .option("-d, --description <text>", "Description of the market", "")
     .option("--option-a <text>", "Label for Option A", "YES")
     .option("--option-b <text>", "Label for Option B", "NO")

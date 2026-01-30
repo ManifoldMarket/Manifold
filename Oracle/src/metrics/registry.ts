@@ -3,6 +3,8 @@ import { ETHStakingRateMetric } from "./eth_staking.js";
 import { ETHPriceMetric } from "./eth_price.js";
 import { BTCDominanceMetric } from "./btc_dominance.js";
 import { ETHGasPriceMetric } from "./eth_gas_price.js";
+import { FearGreedMetric } from "./fear_greed.js";
+import { StablecoinPegMetric } from "./stablecoin_peg.js";
 
 class MetricRegistry {
     private metrics: Map<string, Metric> = new Map();
@@ -12,6 +14,8 @@ class MetricRegistry {
         this.register(new ETHPriceMetric());
         this.register(new BTCDominanceMetric());
         this.register(new ETHGasPriceMetric());
+        this.register(new FearGreedMetric());
+        this.register(new StablecoinPegMetric());
     }
 
     register(metric: Metric): void {
