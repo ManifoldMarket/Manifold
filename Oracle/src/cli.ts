@@ -81,8 +81,8 @@ program
 
             const inputs = [
                 titleField,
-                descriptionField,
-                `[${optionAField}, ${optionBField}]`,
+                "0field",
+                "[0field, 0field]",
                 `${snapshotTime}u64`,
             ];
             const fee = CREATE_POOL_FEE / 1_000_000;

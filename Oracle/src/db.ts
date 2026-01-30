@@ -33,6 +33,9 @@ export async function initDb(): Promise<void> {
     `;
     try {
         await pool.query(query);
+        // Ensure columns exist for existing tables
+        await pool.query(`ALTER TABLE markets ADD COLUMN IF NOT EXISTS option_a_label TEXT DEFAULT 'YES'`);
+        await pool.query(`ALTER TABLE markets ADD COLUMN IF NOT EXISTS option_b_label TEXT DEFAULT 'NO'`);
         console.log("📦 Database initialized successfully (PostgreSQL).");
     } catch (err: any) {
         console.error("❌ Database initialization error:", err.message);

@@ -84,14 +84,6 @@ async function syncOnChainData() {
 
                     await db.updateMarketStats(market_id, totalStaked, optionAStakes, optionBStakes);
                 }
-
-                // Parse metadata (labels)
-                const optionsMatch = poolData.match(/options:\s*\[(\d+field),\s*(\d+field)\]/);
-                if (optionsMatch) {
-                    const optionALabel = fieldToString(optionsMatch[1]);
-                    const optionBLabel = fieldToString(optionsMatch[2]);
-                    await db.updateMarketMetadata(market_id, optionALabel, optionBLabel);
-                }
             }
         } catch (e: any) {
             if (!e.message.includes("not found")) {
