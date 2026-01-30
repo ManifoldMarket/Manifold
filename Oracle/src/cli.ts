@@ -50,12 +50,12 @@ program
     .argument("<title>", "Title of the market")
     .argument("<threshold>", "Threshold value")
     .argument("<snapshot_time>", "Snapshot timestamp (Unix seconds)")
-    .argument("[metric]", "Metric type (default: eth_staking_rate)")
+    .option("-m, --metric <type>", "Metric type (eth_staking_rate, eth_price, btc_dominance, eth_gas_price)", "eth_staking_rate")
     .option("-d, --description <text>", "Description of the market", "")
     .option("--option-a <text>", "Label for Option A", "YES")
     .option("--option-b <text>", "Label for Option B", "NO")
-    .action(async (title, threshold, snapshotTime, metric, options) => {
-        const selectedMetric = metric || "eth_staking_rate";
+    .action(async (title, threshold, snapshotTime, options) => {
+        const selectedMetric = options.metric;
         const description = options.description;
         const optionA = options.optionA;
         const optionB = options.optionB;
