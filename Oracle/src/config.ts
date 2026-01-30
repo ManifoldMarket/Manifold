@@ -7,6 +7,8 @@ export const ALEO_NODE_URL = process.env.ALEO_NODE_URL || "";
 export const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "";
 
 // PostgreSQL Configuration
+const useSSL = process.env.PGSSL === "true" || !!process.env.DATABASE_URL?.includes("sslmode=require");
+
 export const DB_CONFIG = {
     connectionString: process.env.DATABASE_URL || undefined,
     host: process.env.PGHOST || "localhost",
@@ -14,9 +16,7 @@ export const DB_CONFIG = {
     user: process.env.PGUSER || "postgres",
     password: process.env.PGPASSWORD || "",
     database: process.env.PGDATABASE || "oracle_db",
-    ssl: {
-        rejectUnauthorized: false,
-    },
+    ssl: useSSL ? { rejectUnauthorized: false } : false,
 };
 
 export const PROGRAM_ID = "predictionprivacyhackviii.aleo";
