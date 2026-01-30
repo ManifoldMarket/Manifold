@@ -9,15 +9,19 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@demox-labs/aleo-wallet-adapter-base": "^0.0.23",
+    "@demox-labs/aleo-wallet-adapter-leo": "^0.0.25",
+    "@demox-labs/aleo-wallet-adapter-react": "^0.0.22",
+    "@demox-labs/aleo-wallet-adapter-reactui": "^0.0.36",
     "@tanstack/react-query": "^5.28.0",
+    "clsx": "^2.1.0",
+    "lucide-react": "^0.363.0",
     "next": "14.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "viem": "^2.9.0",
-    "wagmi": "^2.5.0",
-    "clsx": "^2.1.0",
     "tailwind-merge": "^2.2.0",
-    "lucide-react": "^0.363.0"
+    "viem": "^2.9.0",
+    "wagmi": "^2.5.0"
   },
   "devDependencies": {
     "@types/node": "^20",

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useAccount } from 'wagmi';
+import { useWallet } from '@demox-labs/aleo-wallet-adapter-react';
 import { Navbar } from '@/components/navbar';
 import { FooterStats } from '@/components/footer-stats';
 import { Portfolio } from '@/components/portfolio';
@@ -11,7 +11,7 @@ import { markets, mockActivities, platformStats } from '@/lib/data';
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState<'market' | 'portfolio'>('market');
-  const { isConnected } = useAccount();
+  const { connected: isConnected } = useWallet();
   const {
     filter,
     setFilter,
@@ -71,7 +71,7 @@ export default function HomePage() {
             />
 
             {/* Featured Market */}
-            <FeaturedMarket market={markets[0]} onClick={selectMarket} />
+            <FeaturedMarket markets={markets} onClick={selectMarket} />
 
             {/* Market Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">

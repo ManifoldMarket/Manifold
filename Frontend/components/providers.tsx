@@ -1,18 +1,36 @@
 'use client';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { WagmiProvider } from 'wagmi';
-import { config } from '@/wagmi.config';
-import { useState } from 'react';
+import { useMemo } from 'react';
+import { WalletProvider } from '@demox-labs/aleo-wallet-adapter-react';
+import { WalletModalProvider } from '@demox-labs/aleo-wallet-adapter-reactui';
+import { LeoWalletAdapter } from '@demox-labs/aleo-wallet-adapter-leo';
+import {
+  DecryptPermission,
+  WalletAdapterNetwork,
+} from '@demox-labs/aleo-wallet-adapter-base';
+
+import '@demox-labs/aleo-wallet-adapter-reactui/styles.css';
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const [queryClient] = useState(() => new QueryClient());
+  const wallets = useMemo(
+    () => [
+      new LeoWalletAdapter({
+        appName: 'BlockSeer',
+      }),
+    ],
+    []
+  );
 
   return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
+    <WalletProvider
+      wallets={wallets}
+      decryptPermission={DecryptPermission.UponRequest}
+      network={WalletAdapterNetwork.TestnetBeta}
+      autoConnect
+    >
+      <WalletModalProvider>
         {children}
-      </QueryClientProvider>
-    </WagmiProvider>
+      </WalletModalProvider>
+    </WalletProvider>
   );
 }
