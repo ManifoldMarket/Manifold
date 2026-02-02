@@ -175,7 +175,7 @@ program predictionprivacyhackviii.aleo {
 
         let new_admin_credits = credits {
             owner: ADMIN,
-            microcredits: user_credit.microcredits,
+            microcredits: amount,
         };
 
         return (prediction, updated_user_credits, new_admin_credits, finalize_predict(pool_id, prediction_id, amount, option, option_a_stakes, option_b_stakes));
@@ -237,7 +237,7 @@ program predictionprivacyhackviii.aleo {
             winnings_amount = calculate_winnings(prediction.amount, total_staked, option_a_stakes);
         } else if winning_option == 2u64 {
             assert(option_b_stakes > 0u64);
-            winnings_amount = calculate_winnings(prediction.amount, total_staked, option_a_stakes + option_b_stakes);
+            winnings_amount = calculate_winnings(prediction.amount, total_staked, option_b_stakes);
         }
 
         let updated_prediction = Prediction {
