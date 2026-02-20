@@ -7,7 +7,7 @@ const nextConfig = {
     '@provablehq/aleo-wallet-adaptor-react-ui',
     '@provablehq/aleo-wallet-adaptor-leo',
     '@provablehq/aleo-wallet-adaptor-puzzle',
-    '@provablehq/aleo-wallet-adaptor-shield',
+    '@provablehq/aleo-wallet-adaptor-prove-alpha',
     '@provablehq/aleo-wallet-standard',
     '@provablehq/aleo-types',
   ],
