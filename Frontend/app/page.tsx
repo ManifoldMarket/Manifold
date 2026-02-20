@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useWallet } from '@demox-labs/aleo-wallet-adapter-react';
+import { useWallet } from '@provablehq/aleo-wallet-adaptor-react';
 import { Navbar } from '@/components/navbar';
 import { Portfolio } from '@/components/portfolio';
 import { MarketCard, MarketFilters, FeaturedMarket } from '@/components/market';

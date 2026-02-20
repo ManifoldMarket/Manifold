@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useWallet } from '@demox-labs/aleo-wallet-adapter-react';
+import { useWallet } from '@provablehq/aleo-wallet-adaptor-react';
 import { ArrowLeft, Plus, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -43,12 +43,12 @@ const initialForm: MarketForm = {
 };
 
 export default function AdminPage() {
-  const { publicKey, connected } = useWallet();
+  const { address, connected } = useWallet();
   const [form, setForm] = useState<MarketForm>(initialForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
 
-  const isAdmin = connected && publicKey === ADMIN_ADDRESS;
+  const isAdmin = connected && address === ADMIN_ADDRESS;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;

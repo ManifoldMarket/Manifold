@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react';
 import { ChevronDown, LogOut, Copy, Check, Search, X, Settings, BarChart3, Store } from 'lucide-react';
 import Link from 'next/link';
-import { useWallet } from '@demox-labs/aleo-wallet-adapter-react';
+import { useWallet } from '@provablehq/aleo-wallet-adaptor-react';
 import { cn, truncateAddress } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { useWalletModal } from '@demox-labs/aleo-wallet-adapter-reactui';
+import { useWalletModal } from '@provablehq/aleo-wallet-adaptor-react-ui';
 
 interface NavbarProps {
   activeTab: 'market' | 'portfolio';
@@ -34,9 +34,9 @@ export function Navbar({
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const { publicKey, connected, connecting, disconnect } = useWallet();
+  const { address: walletAddress, connected, connecting, disconnect } = useWallet();
   const { setVisible: setWalletModalVisible } = useWalletModal();
-  const address = publicKey || '';
+  const address = walletAddress || '';
 
   const handleConnect = () => {
     setWalletModalVisible(true);

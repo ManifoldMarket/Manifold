@@ -6,8 +6,8 @@ import { cn, calculateOrderSummary, calculateOdds } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { usePrediction } from '@/hooks/use-prediction';
 import { useOnChainPool } from '@/hooks/use-on-chain-pool';
-import { useWallet } from '@demox-labs/aleo-wallet-adapter-react';
-import { useWalletModal } from '@demox-labs/aleo-wallet-adapter-reactui';
+import { useWallet } from '@provablehq/aleo-wallet-adaptor-react';
+import { useWalletModal } from '@provablehq/aleo-wallet-adaptor-react-ui';
 import { Loader2, BarChart3 } from 'lucide-react';
 
 interface TradingPanelProps {
@@ -20,7 +20,7 @@ export function TradingPanel({ market }: TradingPanelProps) {
   const [txStatus, setTxStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
   const [txMessage, setTxMessage] = useState<string>('');
 
-  const { connected, publicKey, connecting } = useWallet();
+  const { connected, address, connecting } = useWallet();
   const { setVisible: setWalletModalVisible } = useWalletModal();
   const { makePrediction, isLoading, error } = usePrediction();
   const { pool: onChainPool, totalPredictions, isLoading: poolLoading } = useOnChainPool(market.id);

@@ -1,16 +1,13 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { useWallet } from '@demox-labs/aleo-wallet-adapter-react';
+import { useWallet } from '@provablehq/aleo-wallet-adaptor-react';
 
 // Program ID from the deployed Leo program
 const PROGRAM_ID = 'predictionprivacyhackviii.aleo';
 
 // Native Aleo credits program
 const CREDITS_PROGRAM_ID = 'credits.aleo';
-
-// Network the wallet connects to
-const ALEO_NETWORK = 'testnetbeta';
 
 // Default pool ID (will be made dynamic later)
 const DEFAULT_POOL_ID = '1field';
@@ -58,11 +55,9 @@ function extractMicrocredits(record: any): bigint | null {
 
 export function usePrediction() {
   const {
-    publicKey,
-    requestTransaction,
-    requestExecution,
+    address,
+    executeTransaction,
     requestRecords,
-    requestRecordPlaintexts,
   } = useWallet();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -74,7 +69,7 @@ export function usePrediction() {
       option,
       amount,
     }: PredictionParams): Promise<PredictionResult> => {
-      if (!publicKey) {
+      if (!address) {
         return {
           transactionId: undefined,
           status: 'error',
@@ -82,7 +77,7 @@ export function usePrediction() {
         };
       }
 
-      if (!requestExecution && !requestTransaction) {
+      if (!executeTransaction) {
         return {
           transactionId: undefined,
           status: 'error',
@@ -100,32 +95,24 @@ export function usePrediction() {
 
         // --- Step 1: Try to fetch credits records ---
         console.log('=== PREDICTION DEBUG ===');
-        console.log('Public key:', publicKey);
+        console.log('Address:', address);
         console.log('Amount (ALEO):', amount);
         console.log('Amount (microcredits):', amountInMicrocredits);
         console.log('requestRecords available:', !!requestRecords);
-        console.log('requestRecordPlaintexts available:', !!requestRecordPlaintexts);
-        console.log('requestExecution available:', !!requestExecution);
-        console.log('requestTransaction available:', !!requestTransaction);
+        console.log('executeTransaction available:', !!executeTransaction);
 
         let creditsRecord: string | undefined;
 
-        const programsToTry = [CREDITS_PROGRAM_ID, PROGRAM_ID];
-        const fetchMethods = [
-          { name: 'requestRecords', fn: requestRecords },
-          { name: 'requestRecordPlaintexts', fn: requestRecordPlaintexts },
-        ];
+        if (requestRecords) {
+          const programsToTry = [CREDITS_PROGRAM_ID, PROGRAM_ID];
 
-        for (const program of programsToTry) {
-          if (creditsRecord) break;
-
-          for (const method of fetchMethods) {
-            if (creditsRecord || !method.fn) continue;
+          for (const program of programsToTry) {
+            if (creditsRecord) break;
 
             try {
-              console.log(`Trying ${method.name}('${program}')...`);
-              const records = await method.fn(program);
-              console.log(`${method.name}('${program}') returned ${records?.length ?? 0} records`);
+              console.log(`Trying requestRecords('${program}', true)...`);
+              const records = await requestRecords(program, true);
+              console.log(`requestRecords('${program}', true) returned ${records?.length ?? 0} records`);
 
               if (records && records.length > 0) {
                 console.log('First record raw type:', typeof records[0]);
@@ -142,7 +129,7 @@ export function usePrediction() {
                 }
               }
             } catch (e) {
-              console.warn(`${method.name}('${program}') failed:`, e);
+              console.warn(`requestRecords('${program}', true) failed:`, e);
             }
           }
         }
@@ -163,48 +150,23 @@ export function usePrediction() {
         }
 
         // --- Step 3: Build and send transaction ---
-        const aleoTransaction = {
-          address: publicKey,
-          chainId: ALEO_NETWORK,
-          transitions: [
-            {
-              program: PROGRAM_ID,
-              functionName: 'predict',
-              inputs: inputs,
-            },
-          ],
-          fee: 100_000,
-          feePrivate: true,
-        };
-
         console.log('=== TRANSACTION ===');
-        console.log('Transaction:', JSON.stringify(aleoTransaction, null, 2));
+        console.log('Inputs:', JSON.stringify(inputs, null, 2));
 
-        // Try requestExecution first (correct for program function calls),
-        // fall back to requestTransaction
-        let result: string | undefined;
-        if (requestExecution) {
-          console.log('Using requestExecution...');
-          try {
-            result = await requestExecution(aleoTransaction);
-          } catch (execError) {
-            console.warn('requestExecution failed, trying requestTransaction:', execError);
-            if (requestTransaction) {
-              result = await requestTransaction(aleoTransaction);
-            } else {
-              throw execError;
-            }
-          }
-        } else if (requestTransaction) {
-          console.log('Using requestTransaction...');
-          result = await requestTransaction(aleoTransaction);
-        }
+        const result = await executeTransaction({
+          program: PROGRAM_ID,
+          function: 'predict',
+          inputs: inputs,
+          fee: 100_000,
+          privateFee: true,
+        });
 
-        setTransactionId(result || null);
+        const txId = typeof result === 'string' ? result : result?.transactionId;
+        setTransactionId(txId || null);
         setIsLoading(false);
 
         return {
-          transactionId: result,
+          transactionId: txId,
           status: 'success',
         };
       } catch (e) {
@@ -220,7 +182,7 @@ export function usePrediction() {
         };
       }
     },
-    [publicKey, requestTransaction, requestExecution, requestRecords, requestRecordPlaintexts]
+    [address, executeTransaction, requestRecords]
   );
 
   return {
@@ -228,7 +190,7 @@ export function usePrediction() {
     isLoading,
     error,
     transactionId,
-    isConnected: !!publicKey,
-    publicKey,
+    isConnected: !!address,
+    address,
   };
 }
