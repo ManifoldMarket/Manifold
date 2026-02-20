@@ -38,33 +38,3 @@ export async function fetchAllMarkets(): Promise<ApiMarket[]> {
     return [];
   }
 }
-
-// Fetch pending markets only
-export async function fetchPendingMarkets(): Promise<ApiMarket[]> {
-  try {
-    const response = await fetch(`${PROXY_URL}?filter=pending`);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch pending markets: ${response.statusText}`);
-    }
-    const data = await response.json();
-    return data.markets || data || [];
-  } catch (error) {
-    console.error('Error fetching pending markets:', error);
-    return [];
-  }
-}
-
-// Fetch locked markets only
-export async function fetchLockedMarkets(): Promise<ApiMarket[]> {
-  try {
-    const response = await fetch(`${PROXY_URL}?filter=locked`);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch locked markets: ${response.statusText}`);
-    }
-    const data = await response.json();
-    return data.markets || data || [];
-  } catch (error) {
-    console.error('Error fetching locked markets:', error);
-    return [];
-  }
-}

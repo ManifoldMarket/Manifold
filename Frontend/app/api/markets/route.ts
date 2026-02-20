@@ -6,6 +6,10 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_DEV_MODE === 'true'
 
 const MAX_RETRIES = 2;
 const RETRY_DELAY = 1500; // ms
+const CACHE_TTL = 60_000; // 60s
+
+// In-memory cache
+let cachedData: { data: unknown; timestamp: number } | null = null;
 
 async function fetchWithRetry(url: string, options?: RequestInit): Promise<Response> {
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
@@ -24,14 +28,49 @@ async function fetchWithRetry(url: string, options?: RequestInit): Promise<Respo
   throw new Error('Max retries exceeded');
 }
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const filter = searchParams.get('filter'); // 'pending' | 'locked' | null
+function isCacheFresh(): boolean {
+  return !!cachedData && Date.now() - cachedData.timestamp < CACHE_TTL;
+}
 
-  const endpoint = filter ? `${BACKEND_URL}/markets/${filter}` : `${BACKEND_URL}/markets`;
-
+async function refreshCacheInBackground() {
   try {
-    const response = await fetchWithRetry(endpoint, {
+    const response = await fetchWithRetry(`${BACKEND_URL}/markets`, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (response.ok) {
+      const data = await response.json();
+      cachedData = { data, timestamp: Date.now() };
+    }
+  } catch (error) {
+    console.error('Background cache refresh failed:', error);
+  }
+}
+
+export async function GET() {
+  // Serve from cache if fresh
+  if (isCacheFresh()) {
+    return NextResponse.json(cachedData!.data, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60',
+        'X-Cache': 'HIT',
+      },
+    });
+  }
+
+  // If stale cache exists, serve it immediately and refresh in background
+  if (cachedData) {
+    refreshCacheInBackground();
+    return NextResponse.json(cachedData.data, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60',
+        'X-Cache': 'STALE',
+      },
+    });
+  }
+
+  // No cache — fetch synchronously
+  try {
+    const response = await fetchWithRetry(`${BACKEND_URL}/markets`, {
       headers: { 'Content-Type': 'application/json' },
     });
 
@@ -43,7 +82,14 @@ export async function GET(request: Request) {
     }
 
     const data = await response.json();
-    return NextResponse.json(data);
+    cachedData = { data, timestamp: Date.now() };
+
+    return NextResponse.json(data, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60',
+        'X-Cache': 'MISS',
+      },
+    });
   } catch (error) {
     console.error('Proxy error:', error);
     return NextResponse.json({ error: 'Failed to fetch markets' }, { status: 502 });
@@ -67,6 +113,10 @@ export async function POST(request: Request) {
     }
 
     const data = await response.json();
+
+    // Invalidate cache on new market creation
+    cachedData = null;
+
     return NextResponse.json(data);
   } catch (error) {
     console.error('Proxy error:', error);

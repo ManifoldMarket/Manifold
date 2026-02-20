@@ -68,6 +68,15 @@ function predictionsToPositions(predictions: ReturnType<typeof useUserPrediction
   }));
 }
 
+const statCardStyles = [
+  { icon: Wallet, iconColor: 'text-blue-400', bg: 'bg-blue-500/[0.04]' },
+  { icon: TrendingUp, iconColor: 'text-emerald-400', bg: 'bg-emerald-500/[0.04]' },
+  { icon: Trophy, iconColor: 'text-yellow-400', bg: 'bg-yellow-500/[0.04]' },
+  { icon: DollarSign, iconColor: 'text-violet-400', bg: 'bg-violet-500/[0.04]' },
+  { icon: Hash, iconColor: 'text-blue-400', bg: 'bg-blue-500/[0.04]' },
+  { icon: BarChart3, iconColor: 'text-blue-400', bg: 'bg-blue-500/[0.04]' },
+];
+
 export function Portfolio({ isConnected = false }: PortfolioProps) {
   const [activeTab, setActiveTab] = useState<TabType>('active');
   const [searchQuery, setSearchQuery] = useState('');
@@ -117,6 +126,27 @@ export function Portfolio({ isConnected = false }: PortfolioProps) {
     );
   }, [activeTab, searchQuery, activePositions, closedPositions]);
 
+  const statCards = [
+    { label: 'Portfolio Value', value: `$${stats.totalValue.toFixed(2)}`, valueClass: 'text-white' },
+    {
+      label: 'Net P&L',
+      value: `${stats.netPL >= 0 ? '+' : ''}$${stats.netPL.toFixed(2)}`,
+      valueClass: stats.netPL >= 0 ? 'text-emerald-400' : 'text-red-400',
+      sub: `(${stats.netPLPercent >= 0 ? '+' : ''}${stats.netPLPercent.toFixed(1)}%)`,
+      subClass: stats.netPL >= 0 ? 'text-emerald-400/70' : 'text-red-400/70',
+    },
+    { label: 'Biggest Win', value: `+$${stats.biggestWin.toFixed(2)}`, valueClass: 'text-yellow-400' },
+    { label: 'Volume Traded', value: `$${stats.totalVolume.toFixed(2)}`, valueClass: 'text-white' },
+    { label: 'Total Trades', value: `${stats.totalTrades}`, valueClass: 'text-white' },
+    {
+      label: 'Positions',
+      value: `${stats.activePositions}`,
+      valueClass: 'text-white',
+      sub: 'active',
+      subClass: 'text-[hsl(230,10%,40%)]',
+    },
+  ];
+
   return (
     <div className="animate-fade-in">
       {/* Header */}
@@ -125,11 +155,11 @@ export function Portfolio({ isConnected = false }: PortfolioProps) {
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
             Portfolio
           </h1>
-          <p className="text-zinc-400 text-lg">
+          <p className="text-[hsl(230,10%,50%)] text-lg">
             Track your predictions and performance across all markets.
           </p>
           {!hasPredictions && isConnected && !isLoadingPredictions && (
-            <p className="text-zinc-500 text-sm mt-2">
+            <p className="text-[hsl(230,10%,35%)] text-sm mt-2">
               Sync your wallet to load your predictions.
             </p>
           )}
@@ -140,7 +170,7 @@ export function Portfolio({ isConnected = false }: PortfolioProps) {
           <button
             onClick={() => refetchPredictions()}
             disabled={isLoadingPredictions}
-            className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-sm font-medium text-white transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.08] rounded-lg text-sm font-medium text-white transition-colors disabled:opacity-50"
           >
             {isLoadingPredictions ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -154,106 +184,50 @@ export function Portfolio({ isConnected = false }: PortfolioProps) {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-        {/* Portfolio Value */}
-        <div className="bg-zinc-900/50 border border-zinc-800/60 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Wallet className="w-4 h-4 text-blue-400" />
-            <span className="text-xs font-medium text-zinc-500">Portfolio Value</span>
-          </div>
-          <div className="text-xl font-bold text-white font-mono">
-            ${stats.totalValue.toFixed(2)}
-          </div>
-        </div>
+        {statCards.map((card, i) => {
+          const style = statCardStyles[i];
+          const IconComponent = i === 1 ? (stats.netPL >= 0 ? TrendingUp : TrendingDown) : style.icon;
+          const iconColor = i === 1 ? (stats.netPL >= 0 ? 'text-emerald-400' : 'text-red-400') : style.iconColor;
 
-        {/* Net P&L */}
-        <div className="bg-zinc-900/50 border border-zinc-800/60 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-2">
-            {stats.netPL >= 0 ? (
-              <TrendingUp className="w-4 h-4 text-emerald-400" />
-            ) : (
-              <TrendingDown className="w-4 h-4 text-red-400" />
-            )}
-            <span className="text-xs font-medium text-zinc-500">Net P&L</span>
-          </div>
-          <div className={cn(
-            "text-xl font-bold font-mono",
-            stats.netPL >= 0 ? "text-emerald-400" : "text-red-400"
-          )}>
-            {stats.netPL >= 0 ? '+' : ''}${stats.netPL.toFixed(2)}
-          </div>
-          <span className={cn(
-            "text-xs",
-            stats.netPL >= 0 ? "text-emerald-400/70" : "text-red-400/70"
-          )}>
-            ({stats.netPLPercent >= 0 ? '+' : ''}{stats.netPLPercent.toFixed(1)}%)
-          </span>
-        </div>
-
-        {/* Biggest Win */}
-        <div className="bg-zinc-900/50 border border-zinc-800/60 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Trophy className="w-4 h-4 text-yellow-400" />
-            <span className="text-xs font-medium text-zinc-500">Biggest Win</span>
-          </div>
-          <div className="text-xl font-bold text-yellow-400 font-mono">
-            +${stats.biggestWin.toFixed(2)}
-          </div>
-        </div>
-
-        {/* Total Volume */}
-        <div className="bg-zinc-900/50 border border-zinc-800/60 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <DollarSign className="w-4 h-4 text-purple-400" />
-            <span className="text-xs font-medium text-zinc-500">Volume Traded</span>
-          </div>
-          <div className="text-xl font-bold text-white font-mono">
-            ${stats.totalVolume.toFixed(2)}
-          </div>
-        </div>
-
-        {/* Total Trades */}
-        <div className="bg-zinc-900/50 border border-zinc-800/60 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Hash className="w-4 h-4 text-zinc-400" />
-            <span className="text-xs font-medium text-zinc-500">Total Trades</span>
-          </div>
-          <div className="text-xl font-bold text-white font-mono">
-            {stats.totalTrades}
-          </div>
-        </div>
-
-        {/* Positions Count */}
-        <div className="bg-zinc-900/50 border border-zinc-800/60 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <BarChart3 className="w-4 h-4 text-blue-400" />
-            <span className="text-xs font-medium text-zinc-500">Positions</span>
-          </div>
-          <div className="text-xl font-bold text-white font-mono">
-            {stats.activePositions} <span className="text-sm text-zinc-500">active</span>
-          </div>
-        </div>
+          return (
+            <div key={card.label} className={cn('border border-white/[0.06] rounded-xl p-4', style.bg)}>
+              <div className="flex items-center gap-2 mb-2">
+                <IconComponent className={cn('w-4 h-4', iconColor)} />
+                <span className="text-xs font-medium text-[hsl(230,10%,40%)]">{card.label}</span>
+              </div>
+              <div className={cn('text-xl font-bold font-mono', card.valueClass)}>
+                {card.value}
+              </div>
+              {card.sub && (
+                <span className={cn('text-xs', card.subClass)}>
+                  {card.sub}
+                </span>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Positions Section */}
-      <div className="bg-zinc-900/50 border border-zinc-800/60 rounded-2xl overflow-hidden">
+      <div className="bg-[hsl(230,15%,8%)]/60 border border-white/[0.06] rounded-2xl overflow-hidden">
         {/* Tabs and Search */}
-        <div className="px-6 py-4 border-b border-zinc-800/60">
+        <div className="px-6 py-4 border-b border-white/[0.06]">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             {/* Tabs */}
-            <div className="flex items-center gap-1 bg-zinc-800/50 rounded-lg p-1">
+            <div className="flex items-center gap-1 bg-white/[0.04] rounded-lg p-1">
               <button
                 onClick={() => setActiveTab('active')}
                 className={cn(
                   'px-4 py-2 rounded-md text-sm font-medium transition-all',
                   activeTab === 'active'
-                    ? 'bg-zinc-700 text-white'
-                    : 'text-zinc-400 hover:text-white'
+                    ? 'bg-white/[0.08] text-white'
+                    : 'text-[hsl(230,10%,45%)] hover:text-white'
                 )}
               >
                 Active
                 <span className={cn(
                   'ml-2 px-1.5 py-0.5 rounded text-xs',
-                  activeTab === 'active' ? 'bg-blue-500/20 text-blue-400' : 'bg-zinc-700 text-zinc-500'
+                  activeTab === 'active' ? 'bg-blue-500/20 text-blue-400' : 'bg-white/[0.06] text-[hsl(230,10%,40%)]'
                 )}>
                   {stats.activePositions}
                 </span>
@@ -263,14 +237,14 @@ export function Portfolio({ isConnected = false }: PortfolioProps) {
                 className={cn(
                   'px-4 py-2 rounded-md text-sm font-medium transition-all',
                   activeTab === 'closed'
-                    ? 'bg-zinc-700 text-white'
-                    : 'text-zinc-400 hover:text-white'
+                    ? 'bg-white/[0.08] text-white'
+                    : 'text-[hsl(230,10%,45%)] hover:text-white'
                 )}
               >
                 Closed
                 <span className={cn(
                   'ml-2 px-1.5 py-0.5 rounded text-xs',
-                  activeTab === 'closed' ? 'bg-zinc-600 text-zinc-300' : 'bg-zinc-700 text-zinc-500'
+                  activeTab === 'closed' ? 'bg-white/[0.08] text-white/70' : 'bg-white/[0.06] text-[hsl(230,10%,40%)]'
                 )}>
                   {stats.closedPositions}
                 </span>
@@ -279,18 +253,18 @@ export function Portfolio({ isConnected = false }: PortfolioProps) {
 
             {/* Search */}
             <div className="relative w-full sm:w-72 sm:mx-auto">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(230,10%,40%)]" />
               <input
                 type="text"
                 placeholder="Search positions..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-zinc-800/60 border border-zinc-700/50 rounded-lg pl-10 pr-10 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:border-zinc-600 transition-all"
+                className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg pl-10 pr-10 py-2 text-sm text-white placeholder:text-[hsl(230,10%,40%)] focus:outline-none focus:border-white/[0.12] transition-all"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[hsl(230,10%,40%)] hover:text-white/70"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -302,29 +276,29 @@ export function Portfolio({ isConnected = false }: PortfolioProps) {
         {/* Positions Table */}
         {!isConnected ? (
           <div className="px-6 py-16 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-zinc-800/50 flex items-center justify-center mx-auto mb-4">
-              <Wallet className="w-8 h-8 text-zinc-500" />
+            <div className="w-16 h-16 rounded-2xl bg-white/[0.04] flex items-center justify-center mx-auto mb-4">
+              <Wallet className="w-8 h-8 text-[hsl(230,10%,35%)]" />
             </div>
-            <p className="text-zinc-400 mb-2">Connect your wallet to view positions</p>
-            <p className="text-sm text-zinc-500">Your portfolio data will appear here</p>
+            <p className="text-[hsl(230,10%,50%)] mb-2">Connect your wallet to view positions</p>
+            <p className="text-sm text-[hsl(230,10%,35%)]">Your portfolio data will appear here</p>
           </div>
         ) : filteredPositions.length === 0 ? (
           <div className="px-6 py-16 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-zinc-800/50 flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 rounded-2xl bg-white/[0.04] flex items-center justify-center mx-auto mb-4">
               {!hasPredictions && !searchQuery ? (
-                <RefreshCw className="w-8 h-8 text-zinc-500" />
+                <RefreshCw className="w-8 h-8 text-[hsl(230,10%,35%)]" />
               ) : (
-                <BarChart3 className="w-8 h-8 text-zinc-500" />
+                <BarChart3 className="w-8 h-8 text-[hsl(230,10%,35%)]" />
               )}
             </div>
-            <p className="text-zinc-400 mb-2">
+            <p className="text-[hsl(230,10%,50%)] mb-2">
               {searchQuery
                 ? 'No positions match your search'
                 : !hasPredictions
                 ? 'No predictions loaded yet'
                 : `No ${activeTab} positions`}
             </p>
-            <p className="text-sm text-zinc-500 mb-4">
+            <p className="text-sm text-[hsl(230,10%,35%)] mb-4">
               {searchQuery
                 ? 'Try a different search term'
                 : !hasPredictions
@@ -350,7 +324,7 @@ export function Portfolio({ isConnected = false }: PortfolioProps) {
           <div className="overflow-x-auto scroll-hint">
             <table className="w-full">
               <thead>
-                <tr className="text-left text-xs font-medium text-zinc-500 uppercase tracking-wider bg-zinc-800/30">
+                <tr className="text-left text-xs font-medium text-[hsl(230,10%,40%)] uppercase tracking-wider bg-white/[0.02]">
                   <th className="px-6 py-3">Market</th>
                   <th className="px-6 py-3">Outcome</th>
                   <th className="px-6 py-3 text-right">Avg Price</th>
@@ -360,9 +334,9 @@ export function Portfolio({ isConnected = false }: PortfolioProps) {
                   {activeTab === 'closed' && <th className="px-6 py-3 text-center">Result</th>}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-800/60">
+              <tbody className="divide-y divide-white/[0.04]">
                 {filteredPositions.map((position) => (
-                  <tr key={position.id} className="hover:bg-zinc-800/30 transition-colors group">
+                  <tr key={position.id} className="hover:bg-white/[0.02] transition-colors group">
                     <td className="px-6 py-4">
                       <Link
                         href={`/market/${position.marketId}`}
@@ -372,7 +346,7 @@ export function Portfolio({ isConnected = false }: PortfolioProps) {
                         <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
                       </Link>
                       {activeTab === 'closed' && position.closedAt && (
-                        <div className="text-xs text-zinc-500 mt-1">
+                        <div className="text-xs text-[hsl(230,10%,35%)] mt-1">
                           Closed {position.closedAt}
                         </div>
                       )}
@@ -382,12 +356,12 @@ export function Portfolio({ isConnected = false }: PortfolioProps) {
                         'px-2 py-1 rounded text-xs font-medium',
                         position.outcome === 'Yes'
                           ? 'bg-blue-500/10 text-blue-400'
-                          : 'bg-zinc-600/30 text-zinc-300'
+                          : 'bg-white/[0.06] text-white/70'
                       )}>
                         {position.outcome}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-zinc-400 text-right font-mono">
+                    <td className="px-6 py-4 text-sm text-[hsl(230,10%,50%)] text-right font-mono">
                       {(position.avgPrice * 100).toFixed(0)}¢
                     </td>
                     {activeTab === 'active' && (
@@ -417,7 +391,7 @@ export function Portfolio({ isConnected = false }: PortfolioProps) {
                             ? 'bg-emerald-500/10 text-emerald-400'
                             : position.result === 'lost'
                             ? 'bg-red-500/10 text-red-400'
-                            : 'bg-zinc-600/30 text-zinc-400'
+                            : 'bg-white/[0.06] text-[hsl(230,10%,50%)]'
                         )}>
                           {position.result === 'won' ? 'Won' : position.result === 'lost' ? 'Lost' : 'Pending'}
                         </span>

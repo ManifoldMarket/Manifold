@@ -2,7 +2,7 @@
 const PROGRAM_ID = 'predictionprivacyhackviii.aleo';
 
 // Network API - using mainnet endpoint
-const NETWORK_URL = 'https://api.explorer.provable.com/v1';
+const NETWORK_URL = 'https://api.explorer.provable.com/v1/testnet';
 
 // Lazy load the SDK to avoid SSR issues
 let networkClient: any = null;
