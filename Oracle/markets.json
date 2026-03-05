@@ -1,28 +1,46 @@
 [
     {
-        "title": "ETH-Moon-Launch",
-        "threshold": 5000,
-        "snapshotTime": 1740000000,
+        "title": "ETH-Target-Two-Weeks",
+        "threshold": 3500,
+        "snapshotTime": 1742342400,
         "metric": "eth_price",
-        "description": "Will ETH reach $5000 by late February?",
-        "optionA": "MOON",
-        "optionB": "STAY"
+        "description": "Will ETH reach $3500 by March 19, 2026?",
+        "optionA": "YES",
+        "optionB": "NO"
     },
     {
-        "title": "Extreme-Fear-Check",
-        "threshold": 20,
-        "snapshotTime": 1739000000,
+        "title": "Fear-Greed-Two-Weeks",
+        "threshold": 40,
+        "snapshotTime": 1742342400,
         "metric": "fear_greed",
-        "description": "Will markets enter Extreme Fear (<20) by mid-February?",
+        "description": "Will markets be fearful (<40) by March 19, 2026?",
         "optionA": "FEARFUL",
         "optionB": "CALM"
     },
     {
-        "title": "USDT-Stability",
+        "title": "BTC-100K-May",
+        "threshold": 100000,
+        "snapshotTime": 1746403200,
+        "metric": "btc_price",
+        "description": "Will Bitcoin price exceed $100,000 by May 5, 2026?",
+        "optionA": "YES",
+        "optionB": "NO"
+    },
+    {
+        "title": "Low-Gas-May",
+        "threshold": 10,
+        "snapshotTime": 1746403200,
+        "metric": "eth_gas_price",
+        "description": "Will Ethereum gas price be below 10 gwei on May 5, 2026?",
+        "optionA": "CHEAP",
+        "optionB": "EXPENSIVE"
+    },
+    {
+        "title": "USDT-Stability-May",
         "threshold": 0.99,
-        "snapshotTime": 1738320000,
+        "snapshotTime": 1746403200,
         "metric": "stablecoin_peg",
-        "description": "Will USDT maintain its peg above $0.99?",
+        "description": "Will USDT maintain its peg above $0.99 by May 5, 2026?",
         "optionA": "STABLE",
         "optionB": "DEPEG"
     }
