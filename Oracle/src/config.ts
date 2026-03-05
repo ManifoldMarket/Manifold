@@ -8,16 +8,17 @@ export const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "";
 
 // PostgreSQL Configuration
 export const DB_CONFIG: any = {
-    connectionString: process.env.DATABASE_URL || undefined,
-    host: process.env.PGHOST || "localhost",
-    port: parseInt(process.env.PGPORT || "5432"),
-    user: process.env.PGUSER || "postgres",
-    password: process.env.PGPASSWORD || "",
-    database: process.env.PGDATABASE || "oracle_db",
+  connectionString: process.env.DATABASE_URL || undefined,
+  host: process.env.PGHOST || "localhost",
+  port: parseInt(process.env.PGPORT || "5432"),
+  user: process.env.PGUSER || "postgres",
+  password: process.env.PGPASSWORD || "",
+  database: process.env.PGDATABASE || "oracle_db",
+  connectionTimeoutMillis: 10000, // 10 seconds timeout
 };
 
-if (process.env.PGSSL === "true") {
-    DB_CONFIG.ssl = { rejectUnauthorized: false };
+if (process.env.PGSSL !== "false") {
+  DB_CONFIG.ssl = true;
 }
 
 export const PROGRAM_ID = "predictionprivacyhackviii.aleo";
